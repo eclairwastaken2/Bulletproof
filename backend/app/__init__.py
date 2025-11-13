@@ -1,17 +1,15 @@
 from flask import Flask
 from flask_cors import CORS
+from .extensions import mongo
+from .auth_routes import auth_bp
 
-def create_app():
+def create_app(config_object="app.config.DevConfig"):
     app = Flask(__name__)
     CORS(app)
+    app.config.from_object(config_object)
 
-    from app.routes.auth import auth
-    from app.routes.journal import journal
-    from app.routes.users import users
-
-    app.register_blueprint(auth, url_prefix="/api")
-    app.register_blueprint(journal, url_prefix="/api")
-    app.register_blueprint(users, url_prefix="/api")
+    mongo.init_app(app)
+    
 
     @app.route("/api/health")
     def health():

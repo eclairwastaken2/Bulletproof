@@ -1,6 +1,6 @@
 from app import create_app
 import os
-app = create_app()
+app = create_app("app.config.ProdConfig")
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
