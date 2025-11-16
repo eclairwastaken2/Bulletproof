@@ -1,25 +1,22 @@
-from app.models.user import User
-from flask_jwt_extended import create_access_token
-from datetime import timedelta
+from flask import Flask, redirect, url_for, session
+from dotenv import load_dotenv
+from authlib.integrations.flask_client import OAuth
+import os
 
-def register_user(data): 
-    if User.objects(email=data["email"]).first():
-        raise ValueError("Email already registered")
-    
-    user = User(email=data["email"], name=data.get("name"))
-    user.set_password(data["password"])
-    user.save()
+oauth = OAuth()
 
-    return user.to_dict()
+def init_oauth(app):
+    oauth.init_app(app)
 
-def login_user(data): 
-    user = User.objects(email=data["email"]).first()
-    if not user or not user.check_password(data["password"]):
-        raise ValueError("Invalid email or password")
-    
-    token = create_access_token(identity=str(user.id))
-    return {"access_token": token}
+    oauth.register(
+        name='cognito',
+        server_metadata_url=(
+            f"https://cognito-idp.{os.getenv('COGNITO_POOL_REGION')}.amazonaws.com/"
+            f"{os.getenv('COGNITO_POOL_ID')}/.well-known/openid-configuration"
+        ),
+        client_id=os.getenv("COGNITO_CLIENT_ID"),
+        client_secret=os.getenv("COGNITO_CLIENT_SECRET"),
+        client_kwargs={"scope": "openid email"},
+    )
 
-def get_profile(user_id): 
-    user = User.objects(id=user_id).first()
-    return user
+    return oauth

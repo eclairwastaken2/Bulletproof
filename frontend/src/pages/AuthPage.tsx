@@ -1,35 +1,38 @@
-import React, { useState } from "react";
-import { login, register } from "../api";
+import React from "react";
+import { login, API_BASE } from "../api";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function AuthPage(){
-  const [isRegister, setIsRegister] = useState(false);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+export default function AuthPage() {
+
   const nav = useNavigate();
 
-  async function submit(e:React.FormEvent){
-    e.preventDefault();
-    const fn = isRegister ? register : login;
-    const res = await fn({username, password});
-    if (res.token) {
-      localStorage.setItem("bj_token", res.token);
-      localStorage.setItem("bj_username", res.username);
-      nav(`/${res.username}`);
-    } else {
-      alert(res.error || JSON.stringify(res));
+  useEffect(() => {
+    async function handleAuth() {
+      const res = await fetch(`${API_BASE}/auth/authorize`, {
+        credentials: "include" // send Flask session cookies
+      });
+      const data = await res.json();
+      if (data.username) {
+        nav(`/${data.username}`);
+      } else {
+        alert("Login failed");
+      }
     }
+    handleAuth();
+  }, [nav]);
+
+  function handleLogin() {
+    login();
   }
 
   return (
-    <div style={{padding:20}}>
-      <h2>{isRegister ? "Register" : "Login"}</h2>
-      <form onSubmit={submit}>
-        <input placeholder="username" value={username} onChange={e=>setUsername(e.target.value)} />
-        <input type="password" placeholder="password" value={password} onChange={e=>setPassword(e.target.value)} />
-        <button type="submit">{isRegister ? "Register" : "Login"}</button>
-      </form>
-      <button onClick={()=>setIsRegister(v=>!v)}>{isRegister ? "Have an account? Log in" : "No account? Register"}</button>
+    <div style={{ padding: 20 }}>
+      <h2>Welcome</h2>
+
+      <button onClick={handleLogin} style={{ padding: "10px 20px", fontSize: "16px" }}>
+        Login / Register with AWS Cognito
+      </button>
     </div>
   );
 }
