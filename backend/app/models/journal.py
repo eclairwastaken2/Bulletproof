@@ -8,7 +8,7 @@ def get_db():
 
 def list_entries(user_id):
     db = get_db()
-    entries = db.journals.find({"user_id": ObjectId(user_id)}).sort("created_at", -1)
+    entries = db.journals.find({"user_id": user_id}).sort("created_at", -1)
     return [
         {
             "id": str(e["_id"]),
@@ -24,7 +24,7 @@ def list_entries(user_id):
 def create_entry(user_id, title, body):
     now = datetime.datetime.utcnow()
     entry = {
-        "user_id": ObjectId(user_id),
+        "user_id": user_id,
         "title": title,
         "body": body,
         "created_at": now,
@@ -38,7 +38,7 @@ def create_entry(user_id, title, body):
 def update_entry(user_id, entry_id, data):
     db = get_db()
     db.journals.update_one(
-        {"_id": ObjectId(entry_id), "user_id": ObjectId(user_id)},
+        {"_id": ObjectId(entry_id), "user_id": user_id},
         {"$set": {
             "title": data.get("title", ""),
             "body": data.get("body", ""),
@@ -54,6 +54,6 @@ def update_entry(user_id, entry_id, data):
 def delete_entry(user_id, entry_id):
     db = get_db()
     result = db.journals.delete_one(
-        {"_id": ObjectId(entry_id), "user_id": ObjectId(user_id)}
+        {"_id": ObjectId(entry_id), "user_id": user_id}
     )
     return result.deleted_count > 0

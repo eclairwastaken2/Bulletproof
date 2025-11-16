@@ -11,6 +11,7 @@ def login():
 
 @auth_bp.get("/authorize")
 def authorize():
+    print("COOKIES:", session)
     token = oauth.cognito.authorize_access_token()
     userinfo = token["userinfo"]
 

@@ -6,15 +6,16 @@ from app.routes import register_blueprints
 from app.config import DevConfig
 import os
 
+
 def create_app():
     app = Flask(__name__)
-    app.secret_key =os.getenv("SECRET_KEY")
-    CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
-    app.config['SESSION_COOKIE_SAMESITE'] = "Lax"  
-    app.config['SESSION_COOKIE_SECURE'] = False 
-    init_oauth(app) 
-    app.config.from_object(DevConfig)
 
+    app.config.from_object(DevConfig)
+    app.secret_key = os.getenv("SECRET_KEY") or "dev-secret"
+    print("SECRET KEY:", os.getenv("SECRET_KEY"))
+
+    CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
+    init_oauth(app)
     mongo.init_app(app)
     jwt.init_app(app)
 

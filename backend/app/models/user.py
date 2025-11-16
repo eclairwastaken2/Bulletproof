@@ -29,7 +29,7 @@ def find_user_by_email(email):
 
 def find_user_by_id(user_id):
     db = get_db()
-    user = db.users.find_one({"_id": ObjectId(user_id)})
+    user = db.users.find_one({"_id": user_id})
     if user:
         user["_id"] = str(user["_id"])
     return user
